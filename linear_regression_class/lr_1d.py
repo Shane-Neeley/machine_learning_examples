@@ -27,8 +27,8 @@ Y = np.array(Y)
 
 
 # let's plot the data to see what it looks like
-plt.scatter(X, Y)
-plt.show()
+# plt.scatter(X, Y)
+# plt.show()
 
 
 # apply the equations we learned to calculate a and b
@@ -52,4 +52,10 @@ plt.show()
 d1 = Y - Yhat
 d2 = Y - Y.mean()
 r2 = 1 - d1.dot(d1) / d2.dot(d2)
+
+# r squared = 1 - (sum of squares residual) / (sum of squares total)
+# so find residual error from Y in d1, and square them (dot product of itself)
+# then find total error, from the mean? and dot product for squares.
+# See image rsquared.png : https://www.udemy.com/data-science-linear-regression-in-python/learn/v4/t/lecture/3461186?start=0
+
 print("the r-squared is:", r2)

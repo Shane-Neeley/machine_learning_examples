@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-df = pd.read_excel('mlr02.xls')
+df = pd.read_excel('mlr02.xls') # switch to anaconda for this to work
 X = df.as_matrix()
 
 # using age to predict systolic blood pressure
@@ -51,9 +51,3 @@ def get_r2(X, Y):
 print("r2 for x2 only:", get_r2(X2only, Y))
 print("r2 for x3 only:", get_r2(X3only, Y))
 print("r2 for both:", get_r2(X, Y))
-
-
-
-
-
-
