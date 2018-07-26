@@ -16,7 +16,7 @@ Xtrain, Ytrain, Xtest, Ytest = get_binary_data()
 # randomly initialize weights
 D = Xtrain.shape[1]
 W = np.random.randn(D)
-b = 0 # bias term
+b = 0  # bias term
 
 # make predictions
 def sigmoid(a):
@@ -31,13 +31,13 @@ def classification_rate(Y, P):
 
 # cross entropy
 def cross_entropy(T, pY):
-    return -np.mean(T*np.log(pY) + (1 - T)*np.log(1 - pY))
+    return -np.mean(T * np.log(pY) + (1 - T) * np.log(1 - pY))
 
 # train loop
 train_costs = []
 test_costs = []
 learning_rate = 0.001
-for i in range(10000):
+for i in range(10000): # ten thousand epochs
     pYtrain = forward(Xtrain, W, b)
     pYtest = forward(Xtest, W, b)
 
@@ -47,17 +47,17 @@ for i in range(10000):
     test_costs.append(ctest)
 
     # gradient descent
-    W -= learning_rate*Xtrain.T.dot(pYtrain - Ytrain)
-    b -= learning_rate*(pYtrain - Ytrain).sum()
+    W -= learning_rate * (Xtrain.T.dot(pYtrain - Ytrain) - 0.1*W) # shane added regularization term
+    b -= learning_rate * (pYtrain - Ytrain).sum()
     if i % 1000 == 0:
         print(i, ctrain, ctest)
 
-print("Final train classification_rate:", classification_rate(Ytrain, np.round(pYtrain)))
-print("Final test classification_rate:", classification_rate(Ytest, np.round(pYtest)))
+print("Final train classification_rate:",
+      classification_rate(Ytrain, np.round(pYtrain)))
+print("Final test classification_rate:",
+      classification_rate(Ytest, np.round(pYtest)))
 
 legend1, = plt.plot(train_costs, label='train cost')
 legend2, = plt.plot(test_costs, label='test cost')
 plt.legend([legend1, legend2])
 plt.show()
-
-

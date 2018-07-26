@@ -83,9 +83,9 @@ def plot_train_vs_test_curves(X, Y, sample=20, max_deg=20):
     plt.legend()
     plt.show()
 
-    plt.plot(mse_trains, label="train mse")
-    plt.legend()
-    plt.show()
+    # plt.plot(mse_trains, label="train mse")
+    # plt.legend()
+    # plt.show()
 
 if __name__ == "__main__":
     # make up some data and plot it
@@ -96,6 +96,7 @@ if __name__ == "__main__":
     plt.plot(X, Y)
     plt.show()
 
-    for deg in (5, 6, 7, 8, 9):
+    for deg in (5, 9):
         fit_and_display(X, Y, 10, deg)
+
     plot_train_vs_test_curves(X, Y)

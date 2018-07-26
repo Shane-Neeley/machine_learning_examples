@@ -2,7 +2,7 @@
 # the data X and weight matrix w are randomly generated from a
 # standard normal distribution.
 #
-# the notes for this class can be found at: 
+# the notes for this class can be found at:
 # https://deeplearningcourses.com/c/data-science-logistic-regression-in-python
 # https://www.udemy.com/data-science-logistic-regression-in-python
 

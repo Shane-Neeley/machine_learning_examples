@@ -17,6 +17,7 @@ D = 50
 # uniformly distributed numbers between -5, +5
 X = (np.random.random((N, D)) - 0.5)*10
 
+# a good background on weights: http://ml-cheatsheet.readthedocs.io/en/latest/linear_regression.html
 # true weights - only the first 3 dimensions of X affect Y
 true_w = np.array([1, 0.5, -0.5] + [0]*(D - 3))
 

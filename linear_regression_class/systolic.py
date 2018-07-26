@@ -71,14 +71,19 @@ clf.fit([t for t in texts],
     [t for t in texts])
 # print(clf.coef_)
 
+# from sklearn import linear_model
+#
+# reg = linear_model.LinearRegression()
+# reg.fit(df[['B', 'C']], df['A'])
+#
+# >>> reg.coef_
+# array([  4.01182386e-01,   3.51587361e-04])
+
 # Other way to do it from stackoverflow: https://stackoverflow.com/questions/11479064/multiple-linear-regression-in-python
 import statsmodels.api as sm
 
 y = y
-
-x = [
-     x,x2
-     ]
+x = [x,x2]
 
 def reg_m(y, x):
     ones = np.ones(len(x[0]))

@@ -23,6 +23,8 @@ Y = 0.5*X + np.random.randn(N)
 # make outliers
 Y[-1] += 30
 Y[-2] += 30
+Y[10] += 30 # these bump the trend upwards but the line still works well
+Y[1] += 30
 
 # plot the data
 plt.scatter(X, Y)
@@ -41,11 +43,26 @@ plt.show()
 # plot the regularized solution
 # probably don't need an L2 regularization this high in many problems
 # everything in this example is exaggerated for visualization purposes
-l2 = 1000.0
+l2 = 1000.0 # this is how much you hate outliers? why does making it too high backfire.
 w_map = np.linalg.solve(l2*np.eye(2) + X.T.dot(X), X.T.dot(Y))
+
+print(w_map)
+print(X.T.dot(X))
+print(l2*np.eye(2) + X.T.dot(X))
+
 Yhat_map = X.dot(w_map)
+print(Yhat_map)
 plt.scatter(X[:,1], Y)
 plt.plot(X[:,1], Yhat_ml, label='maximum likelihood')
 plt.plot(X[:,1], Yhat_map, label='map')
 plt.legend()
 plt.show()
+
+
+
+
+
+
+
+
+#
