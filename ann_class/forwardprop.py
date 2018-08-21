@@ -1,6 +1,6 @@
 # forward propagation example for deep learning in python class.
 #
-# the notes for this class can be found at: 
+# the notes for this class can be found at:
 # https://deeplearningcourses.com/c/data-science-deep-learning-in-python
 # https://www.udemy.com/data-science-deep-learning-in-python
 
@@ -21,7 +21,10 @@ X2 = np.random.randn(Nclass, 2) + np.array([2, 2])
 X3 = np.random.randn(Nclass, 2) + np.array([-2, 2])
 X = np.vstack([X1, X2, X3])
 
+# Labeling each class
 Y = np.array([0]*Nclass + [1]*Nclass + [2]*Nclass)
+# 500 0s, 500 1s, 500 2s
+
 
 # let's see what it looks like
 plt.scatter(X[:,0], X[:,1], c=Y, s=100, alpha=0.5)
@@ -66,4 +69,3 @@ P = np.argmax(P_Y_given_X, axis=1)
 assert(len(P) == len(Y))
 
 print("Classification rate for randomly chosen weights:", classification_rate(Y, P))
-

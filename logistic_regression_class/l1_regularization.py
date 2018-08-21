@@ -29,12 +29,12 @@ print(true_w)
 
 # generate Y - add noise with variance 0.5
 Y = np.round(sigmoid(X.dot(true_w) + np.random.randn(N) * 0.5))
+print('Y')
+print(Y)
 
 # perform gradient descent to find w
 costs = []  # keep track of squared error cost
 w = np.random.randn(D) / np.sqrt(D)  # randomly initialize w
-print('w before: ')
-print(w)
 learning_rate = 0.001
 l1 = 3.0  # try different values - what effect does it have on w?
 for t in range(5000):

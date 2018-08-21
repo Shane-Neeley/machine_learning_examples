@@ -1,6 +1,6 @@
 # neural network in TensorFlow very simple example.
 #
-# the notes for this class can be found at: 
+# the notes for this class can be found at:
 # https://deeplearningcourses.com/c/data-science-deep-learning-in-python
 # https://www.udemy.com/data-science-deep-learning-in-python
 from __future__ import print_function, division
@@ -85,4 +85,3 @@ for i in range(1000):
     pred = sess.run(predict_op, feed_dict={tfX: X, tfY: T})
     if i % 100 == 0:
         print("Accuracy:", np.mean(Y == pred))
-

@@ -1,7 +1,7 @@
 # backpropagation example for deep learning in python class.
 # with sigmoid activation
 #
-# the notes for this class can be found at: 
+# the notes for this class can be found at:
 # https://deeplearningcourses.com/c/data-science-deep-learning-in-python
 # https://www.udemy.com/data-science-deep-learning-in-python
 from __future__ import print_function, division
@@ -155,4 +155,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
