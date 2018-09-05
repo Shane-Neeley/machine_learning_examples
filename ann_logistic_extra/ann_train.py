@@ -37,7 +37,7 @@ def softmax(a):
     expA = np.exp(a)
     return expA / expA.sum(axis=1, keepdims=True)
 
-def forward(X, W1, bat1, W2, b2):
+def forward(X, W1, b1, W2, b2):
     Z = np.tanh(X.dot(W1) + b1)
     return softmax(Z.dot(W2) + b2), Z
 
@@ -68,7 +68,9 @@ for i in range(10000):
     # gradient descent
     W2 -= learning_rate*Ztrain.T.dot(pYtrain - Ytrain_ind)
     b2 -= learning_rate*(pYtrain - Ytrain_ind).sum(axis=0)
+    # dZ is derivative of the tanh, Ztrain is the tanh activation function (1 - tanh(z)^2)
     dZ = (pYtrain - Ytrain_ind).dot(W2.T) * (1 - Ztrain*Ztrain)
+    # move the weight in the negative direction of the gradient
     W1 -= learning_rate*Xtrain.T.dot(dZ)
     b1 -= learning_rate*dZ.sum(axis=0)
     if i % 1000 == 0:

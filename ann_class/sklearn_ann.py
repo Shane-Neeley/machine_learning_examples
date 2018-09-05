@@ -1,6 +1,6 @@
 # Train a neural network in just 3 lines of code!
 #
-# the notes for this class can be found at: 
+# the notes for this class can be found at:
 # https://deeplearningcourses.com/c/data-science-deep-learning-in-python
 # https://www.udemy.com/data-science-deep-learning-in-python
 from __future__ import print_function, division
@@ -26,7 +26,8 @@ Xtrain, Ytrain = X[:Ntrain], Y[:Ntrain]
 Xtest, Ytest = X[Ntrain:], Y[Ntrain:]
 
 # create the neural network
-model = MLPClassifier(hidden_layer_sizes=(20, 20), max_iter=2000)
+# 3 hidden layers with 10 units each
+model = MLPClassifier(hidden_layer_sizes=(20,20,20), max_iter=2000)
 
 # train the neural network
 model.fit(Xtrain, Ytrain)
