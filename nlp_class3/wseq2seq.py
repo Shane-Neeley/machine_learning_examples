@@ -15,6 +15,11 @@ from keras.utils import to_categorical
 import numpy as np
 import matplotlib.pyplot as plt
 
+import keras.backend as K
+if len(K.tensorflow_backend._get_available_gpus()) > 0:
+  from keras.layers import CuDNNLSTM as LSTM
+  from keras.layers import CuDNNGRU as GRU
+
 
 # some config
 BATCH_SIZE = 64  # Batch size for training.
@@ -169,7 +174,11 @@ for i, d in enumerate(decoder_targets):
 ##### build the model #####
 encoder_inputs_placeholder = Input(shape=(max_len_input,))
 x = embedding_layer(encoder_inputs_placeholder)
-encoder = LSTM(LATENT_DIM, return_state=True, dropout=0.5)
+encoder = LSTM(
+  LATENT_DIM,
+  return_state=True,
+  # dropout=0.5 # dropout not available on gpu
+)
 encoder_outputs, h, c = encoder(x)
 # encoder_outputs, h = encoder(x) #gru
 
@@ -187,7 +196,12 @@ decoder_inputs_x = decoder_embedding(decoder_inputs_placeholder)
 
 # since the decoder is a "to-many" model we want to have
 # return_sequences=True
-decoder_lstm = LSTM(LATENT_DIM, return_sequences=True, return_state=True, dropout=0.5)
+decoder_lstm = LSTM(
+  LATENT_DIM,
+  return_sequences=True,
+  return_state=True,
+  # dropout=0.5 # dropout not available on gpu
+)
 decoder_outputs, _, _ = decoder_lstm(
   decoder_inputs_x,
   initial_state=encoder_states

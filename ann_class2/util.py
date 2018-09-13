@@ -27,7 +27,7 @@ def get_clouds():
     X3 = np.random.randn(Nclass, D) + np.array([-2, 2])
     X = np.vstack([X1, X2, X3])
 
-    Y = np.array([0] * Nclass + [1] * Nclass + [2] * Nclass)
+    Y = np.array([0]*Nclass + [1]*Nclass + [2]*Nclass)
     return X, Y
 
 
@@ -41,7 +41,7 @@ def get_spiral():
     radius = np.linspace(1, 10, 100)
     thetas = np.empty((6, 100))
     for i in range(6):
-        start_angle = np.pi * i / 3.0
+        start_angle = np.pi*i / 3.0
         end_angle = start_angle + np.pi / 2
         points = np.linspace(start_angle, end_angle, 100)
         thetas[i] = points
@@ -55,16 +55,94 @@ def get_spiral():
 
     # inputs
     X = np.empty((600, 2))
-    X[:, 0] = x1.flatten()
-    X[:, 1] = x2.flatten()
+    X[:,0] = x1.flatten()
+    X[:,1] = x2.flatten()
 
     # add noise
-    X += np.random.randn(600, 2) * 0.5
+    X += np.random.randn(600, 2)*0.5
 
     # targets
-    Y = np.array([0] * 100 + [1] * 100 + [0] * 100 +
-                 [1] * 100 + [0] * 100 + [1] * 100)
+    Y = np.array([0]*100 + [1]*100 + [0]*100 + [1]*100 + [0]*100 + [1]*100)
     return X, Y
+
+
+
+def get_transformed_data():
+    print("Reading in and transforming data...")
+
+    if not os.path.exists('../large_files/train.csv'):
+        print('Looking for ../large_files/train.csv')
+        print('You have not downloaded the data and/or not placed the files in the correct location.')
+        print('Please get the data from: https://www.kaggle.com/c/digit-recognizer')
+        print('Place train.csv in the folder large_files adjacent to the class folder')
+        exit()
+
+    df = pd.read_csv('../large_files/train.csv')
+    data = df.values.astype(np.float32)
+    np.random.shuffle(data)
+
+    X = data[:, 1:]
+    Y = data[:, 0].astype(np.int32)
+
+    Xtrain = X[:-1000]
+    Ytrain = Y[:-1000]
+    Xtest  = X[-1000:]
+    Ytest  = Y[-1000:]
+
+    # center the data
+    mu = Xtrain.mean(axis=0)
+    Xtrain = Xtrain - mu
+    Xtest  = Xtest - mu
+
+    # transform the data
+    pca = PCA()
+    Ztrain = pca.fit_transform(Xtrain)
+    Ztest  = pca.transform(Xtest)
+
+    plot_cumulative_variance(pca)
+
+    # take first 300 cols of Z
+    Ztrain = Ztrain[:, :300]
+    Ztest = Ztest[:, :300]
+
+    # normalize Z
+    mu = Ztrain.mean(axis=0)
+    std = Ztrain.std(axis=0)
+    Ztrain = (Ztrain - mu) / std
+    Ztest = (Ztest - mu) / std
+
+    return Ztrain, Ztest, Ytrain, Ytest
+
+
+def get_normalized_data():
+    print("Reading in and transforming data...")
+
+    if not os.path.exists('../large_files/train.csv'):
+        print('Looking for ../large_files/train.csv')
+        print('You have not downloaded the data and/or not placed the files in the correct location.')
+        print('Please get the data from: https://www.kaggle.com/c/digit-recognizer')
+        print('Place train.csv in the folder large_files adjacent to the class folder')
+        exit()
+
+    df = pd.read_csv('../large_files/train.csv')
+    data = df.values.astype(np.float32)
+    np.random.shuffle(data)
+    X = data[:, 1:]
+    Y = data[:, 0]
+
+    Xtrain = X[:-1000]
+    Ytrain = Y[:-1000]
+    Xtest  = X[-1000:]
+    Ytest  = Y[-1000:]
+
+    # normalize the data
+    mu = Xtrain.mean(axis=0)
+    std = Xtrain.std(axis=0)
+    np.place(std, std == 0, 1)
+    Xtrain = (Xtrain - mu) / std
+    Xtest = (Xtest - mu) / std
+    
+    return Xtrain, Xtest, Ytrain, Ytest
 
 
 def plot_cumulative_variance(pca):
@@ -75,59 +153,8 @@ def plot_cumulative_variance(pca):
         else:
             P.append(p + P[-1])
     plt.plot(P)
-    plt.title('plot_cumulative_variance')
     plt.show()
     return P
-
-
-def get_transformed_data():
-    print("Reading in and transforming data...")
-
-    if not os.path.exists('../large_files/kaggletrain.csv'):
-        print('Looking for ../large_files/kaggletrain.csv')
-        print('You have not downloaded the data and/or not placed the files in the correct location.')
-        print('Please get the data from: https://www.kaggle.com/c/digit-recognizer')
-        print(
-            'Place kaggletrain.csv in the folder large_files adjacent to the class folder')
-        exit()
-
-    df = pd.read_csv('../large_files/kaggletrain.csv')
-    data = df.as_matrix().astype(np.float32)
-    np.random.shuffle(data)
-
-    X = data[:, 1:]
-    mu = X.mean(axis=0)
-    X = X - mu  # center the data
-    pca = PCA()
-    Z = pca.fit_transform(X)
-    Y = data[:, 0].astype(np.int32)
-    plot_cumulative_variance(pca)
-    print('X shape: ' + str(X.shape))
-    print('Z shape (X after PCA): ' + str(Z.shape))
-    return Z, Y, pca, mu
-
-
-def get_normalized_data():
-    print("Reading in and transforming data...")
-
-    if not os.path.exists('../large_files/kaggletrain.csv'):
-        print('Looking for ../large_files/kaggletrain.csv')
-        print('You have not downloaded the data and/or not placed the files in the correct location.')
-        print('Please get the data from: https://www.kaggle.com/c/digit-recognizer')
-        print(
-            'Place kaggletrain.csv in the folder large_files adjacent to the class folder')
-        exit()
-
-    df = pd.read_csv('../large_files/kaggletrain.csv')
-    data = df.as_matrix().astype(np.float32)
-    np.random.shuffle(data)
-    X = data[:, 1:]
-    mu = X.mean(axis=0)
-    std = X.std(axis=0)
-    np.place(std, std == 0, 1)
-    X = (X - mu) / std  # normalize the data
-    Y = data[:, 0]
-    return X, Y
 
 
 def forward(X, W, b):
@@ -137,22 +164,28 @@ def forward(X, W, b):
     y = expa / expa.sum(axis=1, keepdims=True)
     return y
 
+
 def predict(p_y):
     return np.argmax(p_y, axis=1)
+
 
 def error_rate(p_y, t):
     prediction = predict(p_y)
     return np.mean(prediction != t)
 
+
 def cost(p_y, t):
     tot = t * np.log(p_y)
     return -tot.sum()
 
+
 def gradW(t, y, X):
     return X.T.dot(t - y)
 
+
 def gradb(t, y):
     return (t - y).sum(axis=0)
+
 
 def y2indicator(y):
     N = len(y)
@@ -162,26 +195,13 @@ def y2indicator(y):
         ind[i, y[i]] = 1
     return ind
 
+
 def benchmark_full():
-    X, Y = get_normalized_data()
+    Xtrain, Xtest, Ytrain, Ytest = get_normalized_data()
 
     print("Performing logistic regression...")
     # lr = LogisticRegression(solver='lbfgs')
 
-    # # test on the last 1000 points
-    # lr.fit(X[:-1000, :200], Y[:-1000]) # use only first 200 dimensions
-    # print lr.score(X[-1000:, :200], Y[-1000:])
-    # print "X:", X
-
-    # normalize X first
-    # mu = X.mean(axis=0)
-    # std = X.std(axis=0)
-    # X = (X - mu) / std
-
-    Xtrain = X[:-1000, ]
-    Ytrain = Y[:-1000]
-    Xtest = X[-1000:, ]
-    Ytest = Y[-1000:]
 
     # convert Ytrain and Ytest to (N x K) matrices of indicator variables
     N, D = Xtrain.shape
@@ -213,12 +233,12 @@ def benchmark_full():
         p_y_test = forward(Xtest, W, b)
         lltest = cost(p_y_test, Ytest_ind)
         LLtest.append(lltest)
-
+        
         err = error_rate(p_y_test, Ytest)
         CRtest.append(err)
 
-        W += lr * (gradW(Ytrain_ind, p_y, Xtrain) - reg * W)
-        b += lr * (gradb(Ytrain_ind, p_y) - reg * b)
+        W += lr*(gradW(Ytrain_ind, p_y, Xtrain) - reg*W)
+        b += lr*(gradb(Ytrain_ind, p_y) - reg*b)
         if i % 10 == 0:
             print("Cost at iteration %d: %.6f" % (i, ll))
             print("Error rate:", err)
@@ -233,21 +253,8 @@ def benchmark_full():
 
 
 def benchmark_pca():
-    X, Y, _, _ = get_transformed_data()
-    print('X before: ' + str(X.shape) )
-    X = X[:, :300]
-    print('X after: ' + str(X.shape) )
-
-    # normalize X first
-    mu = X.mean(axis=0)
-    std = X.std(axis=0)
-    X = (X - mu) / std
-
+    Xtrain, Xtest, Ytrain, Ytest = get_transformed_data()
     print("Performing logistic regression...")
-    Xtrain = X[:-1000, ]
-    Ytrain = Y[:-1000]
-    Xtest = X[-1000:, ]
-    Ytest = Y[-1000:]
 
     N, D = Xtrain.shape
     Ytrain_ind = np.zeros((N, 10))
@@ -270,6 +277,7 @@ def benchmark_pca():
     reg = 0.01
     for i in range(200):
         p_y = forward(Xtrain, W, b)
+        # print "p_y:", p_y
         ll = cost(p_y, Ytrain_ind)
         LL.append(ll)
 
@@ -280,8 +288,8 @@ def benchmark_pca():
         err = error_rate(p_y_test, Ytest)
         CRtest.append(err)
 
-        W += lr * (gradW(Ytrain_ind, p_y, Xtrain) - reg * W)
-        b += lr * (gradb(Ytrain_ind, p_y) - reg * b)
+        W += lr*(gradW(Ytrain_ind, p_y, Xtrain) - reg*W)
+        b += lr*(gradb(Ytrain_ind, p_y) - reg*b)
         if i % 10 == 0:
             print("Cost at iteration %d: %.6f" % (i, ll))
             print("Error rate:", err)
@@ -296,5 +304,6 @@ def benchmark_pca():
 
 
 if __name__ == '__main__':
-    #benchmark_pca()
+    # benchmark_pca()
     benchmark_full()
+

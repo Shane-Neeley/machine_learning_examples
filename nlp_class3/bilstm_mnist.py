@@ -13,6 +13,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+if len(K.tensorflow_backend._get_available_gpus()) > 0:
+  from keras.layers import CuDNNLSTM as LSTM
+  from keras.layers import CuDNNGRU as GRU
+
 
 def get_mnist(limit=None):
   if not os.path.exists('../large_files'):
@@ -24,7 +28,7 @@ def get_mnist(limit=None):
 
   print("Reading in and transforming data...")
   df = pd.read_csv('../large_files/train.csv')
-  data = df.as_matrix()
+  data = df.values
   np.random.shuffle(data)
   X = data[:, 1:].reshape(-1, 28, 28) / 255.0 # data is from 0..255
   Y = data[:, 0]

@@ -16,6 +16,10 @@ import keras.backend as K
 import numpy as np
 import matplotlib.pyplot as plt
 
+if len(K.tensorflow_backend._get_available_gpus()) > 0:
+  from keras.layers import CuDNNLSTM as LSTM
+  from keras.layers import CuDNNGRU as GRU
+
 
 # make sure we do softmax over the time axis
 # expected shape is N x T x D
@@ -198,7 +202,11 @@ for i, d in enumerate(decoder_targets):
 # Set up the encoder - simple!
 encoder_inputs_placeholder = Input(shape=(max_len_input,))
 x = embedding_layer(encoder_inputs_placeholder)
-encoder = Bidirectional(LSTM(LATENT_DIM, return_sequences=True, dropout=0.5))
+encoder = Bidirectional(LSTM(
+  LATENT_DIM,
+  return_sequences=True,
+  # dropout=0.5 # dropout not available on gpu
+))
 encoder_outputs = encoder(x)
 
 

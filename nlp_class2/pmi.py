@@ -133,7 +133,9 @@ if not os.path.exists('pmi_counts_%s.npz' % V):
 
           start = max(0, i - context_size)
           end   = min(len(line_as_idx), i + context_size)
-          for c in line_as_idx[start:end]:
+          for c in line_as_idx[start:i]:
+            wc_counts[w, c] += 1
+          for c in line_as_idx[i+1:end]:
             wc_counts[w, c] += 1
   print("Finished counting")
 
@@ -150,9 +152,13 @@ c_probs = c_probs.reshape(1, V)
 
 
 # PMI(w, c) = #(w, c) / #(w) / p(c)
-pmi = wc_counts / wc_counts.sum(axis=1) / c_probs
+# pmi = wc_counts / wc_counts.sum(axis=1) / c_probs # works only if numpy arrays
+pmi = wc_counts.multiply(1.0 / wc_counts.sum(axis=1) / c_probs).tocsr()
+# this operation changes it to a coo_matrix
+# which doesn't have functions we need, e.g log1p()
+# so convert it back to a csr
 print("type(pmi):", type(pmi))
-logX = np.log(pmi.A + 1)
+logX = pmi.log1p() # would be logX = np.log(pmi.A + 1) in numpy
 print("type(logX):", type(logX))
 logX[logX < 0] = 0
 
@@ -161,8 +167,8 @@ logX[logX < 0] = 0
 
 
 # latent dimension
-D = 50
-reg = 0.
+D = 100
+reg = 0.1
 
 
 # initialize weights
@@ -178,7 +184,9 @@ t0 = datetime.now()
 for epoch in range(10):
   print("epoch:", epoch)
   delta = W.dot(U.T) + b.reshape(V, 1) + c.reshape(1, V) + mu - logX
-  cost = ( delta * delta ).sum()
+  # cost = ( delta * delta ).sum()
+  cost = np.multiply(delta, delta).sum()
+  # * behaves differently if delta is a "matrix" object vs "array" object
   costs.append(cost)
 
   ### partially vectorized updates ###
