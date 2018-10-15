@@ -1,8 +1,6 @@
 # Course URL:
 # https://deeplearningcourses.com/c/natural-language-processing-with-deep-learning-in-python
 # https://udemy.com/natural-language-processing-with-deep-learning-in-python
-from __future__ import print_function, division
-from future.utils import iteritems
 from builtins import range
 # Note: you may need to update your version of future
 # sudo pip install -U future
@@ -12,7 +10,16 @@ import os
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 
-
+# This takes a label encoded 1d array e.g. (1,2,2,3,4,4)
+# returns one-hot encoded indicator matrix
+def y2indicator(y):
+    y = np.array(y) # make sure it's numpy
+    N = len(y) # get length
+    K = len(set(y)) # get number of unique samples
+    ind = np.zeros((N, K))
+    for i in range(N):
+        ind[i, y[i]] = 1
+    return ind
 
 def init_weight(Mi, Mo):
     return np.random.randn(Mi, Mo) / np.sqrt(Mi + Mo)

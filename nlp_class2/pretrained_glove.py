@@ -2,8 +2,8 @@
 # https://www.udemy.com/data-science-natural-language-processing-in-python
 
 # Author: http://lazyprogrammer.me
-from __future__ import print_function, division
-from future.utils import iteritems
+# from __future__ import print_function, division
+# from future.utils import iteritems
 from builtins import range
 # Note: you may need to update your version of future
 # sudo pip install -U future
@@ -66,14 +66,14 @@ def find_analogies(w1, w2, w3):
   idxs = distances.argsort()[:4]
   for idx in idxs:
     word = idx2word[idx]
-    if word not in (w1, w2, w3): 
+    if word not in (w1, w2, w3):
       best_word = word
       break
 
   print(w1, "-", w2, "=", best_word, "-", w3)
 
 
-def nearest_neighbors(w, n=5):
+def nearest_neighbors(w, n=10):
   if w not in word2vec:
     print("%s not in dictionary:" % w)
     return
@@ -92,7 +92,9 @@ print('Loading word vectors...')
 word2vec = {}
 embedding = []
 idx2word = []
-with open('../large_files/glove.6B/glove.6B.50d.txt', encoding='utf-8') as f:
+d = str(200)
+print('dimensions: ' + d)
+with open('../large_files/glove.6B/glove.6B.' + d + 'd.txt', encoding='utf-8') as f:
   # is just a space-separated text file in the format:
   # word vec[0] vec[1] vec[2] ...
   for line in f:
@@ -107,6 +109,8 @@ embedding = np.array(embedding)
 V, D = embedding.shape
 
 
+find_analogies('chest', 'lungs', 'head')
+find_analogies('arm', 'hand', 'leg')
 find_analogies('king', 'man', 'woman')
 find_analogies('france', 'paris', 'london')
 find_analogies('france', 'paris', 'rome')
@@ -133,6 +137,10 @@ find_analogies('february', 'january', 'november')
 find_analogies('france', 'paris', 'rome')
 find_analogies('paris', 'france', 'italy')
 
+nearest_neighbors('glioblastoma')
+nearest_neighbors('egfr')
+nearest_neighbors('braf')
+nearest_neighbors('pten')
 nearest_neighbors('king')
 nearest_neighbors('france')
 nearest_neighbors('japan')

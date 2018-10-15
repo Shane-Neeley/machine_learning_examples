@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
-from gensim.models import KeyedVectors
+# from gensim.models import KeyedVectors
 
 
 # data from https://www.cs.umb.edu/~smimarog/textmining/datasets/
@@ -142,5 +142,3 @@ model = RandomForestClassifier(n_estimators=200)
 model.fit(Xtrain, Ytrain)
 print("train score:", model.score(Xtrain, Ytrain))
 print("test score:", model.score(Xtest, Ytest))
-
-

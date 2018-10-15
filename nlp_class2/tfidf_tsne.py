@@ -1,8 +1,6 @@
 # Course URL:
 # https://deeplearningcourses.com/c/natural-language-processing-with-deep-learning-in-python
 # https://udemy.com/natural-language-processing-with-deep-learning-in-python
-from __future__ import print_function, division
-from future.utils import iteritems
 from builtins import range
 # Note: you may need to update your version of future
 # sudo pip install -U future
@@ -71,7 +69,7 @@ def main():
     A = A.toarray()
 
     # map back to word in plot
-    idx2word = {v:k for k, v in iteritems(word2idx)}
+    idx2word = {v:k for k, v in word2idx.items()}
 
     # plot the data in 2-D
     tsne = TSNE()

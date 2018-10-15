@@ -1,8 +1,8 @@
 # Course URL:
 # https://deeplearningcourses.com/c/natural-language-processing-with-deep-learning-in-python
 # https://udemy.com/natural-language-processing-with-deep-learning-in-python
-from __future__ import print_function, division
-from future.utils import iteritems
+# from __future__ import print_function, division
+# from future.utils import iteritems
 from builtins import range, input
 # Note: you may need to update your version of future
 # sudo pip install -U future
@@ -47,12 +47,16 @@ if __name__ == '__main__':
 
 
   # train a logistic model
-  W = np.random.randn(V, V) / np.sqrt(V)
+  # W = np.random.randn(V, V) / np.sqrt(V)
+  # train a shallow neural network model
+  D = 100
+  W1 = np.random.randn(V, D) / np.sqrt(V)
+  W2 = np.random.randn(D, V) / np.sqrt(D)
 
   losses = []
   epochs = 1
   lr = 1e-1
-  
+
   def softmax(a):
     a = a - a.max()
     exp_a = np.exp(a)
@@ -78,11 +82,16 @@ if __name__ == '__main__':
       inputs[np.arange(n - 1), sentence[:n-1]] = 1
       targets[np.arange(n - 1), sentence[1:]] = 1
 
+      hidden = np.tanh(inputs.dot(W1))
       # get output predictions
-      predictions = softmax(inputs.dot(W))
+      predictions = softmax(hidden.dot(W2))
 
       # do a gradient descent step
       W = W - lr * inputs.T.dot(predictions - targets)
+
+      W2 = W2 - lr * hidden.T.dot(predictions - targets)
+      dhidden = (predictions - targets).dot(W2.T) * (1 - hidden * hidden)
+      W1 = W1 - lr * inputs.T.dot(dhidden)
 
       # keep track of the loss
       loss = -np.sum(targets * np.log(predictions)) / (n - 1)
@@ -131,7 +140,3 @@ if __name__ == '__main__':
   plt.title("Bigram Probs")
   plt.imshow(bigram_probs)
   plt.show()
-
-
-
-

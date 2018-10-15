@@ -2,7 +2,7 @@
 # https://deeplearningcourses.com/c/natural-language-processing-with-deep-learning-in-python
 # https://udemy.com/natural-language-processing-with-deep-learning-in-python
 from __future__ import print_function, division
-from future.utils import iteritems
+# from future.utils import iteritems
 from builtins import range, input
 # Note: you may need to update your version of future
 # sudo pip install -U future
@@ -24,7 +24,7 @@ def get_bigram_probs(sentences, V, start_idx, end_idx, smoothing=1):
   bigram_probs = np.ones((V, V)) * smoothing
   for sentence in sentences:
     for i in range(len(sentence)):
-      
+
       if i == 0:
         # beginning word
         bigram_probs[start_idx, sentence[i]] += 1
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
 
   # a function to map word indexes back to real words
-  idx2word = dict((v, k) for k, v in iteritems(word2idx))
+  idx2word = dict((v, k) for k, v in dict.items(word2idx))
   def get_words(sentence):
     return ' '.join(idx2word[i] for i in sentence)
 
@@ -134,4 +134,3 @@ if __name__ == '__main__':
     cont = input("Continue? [Y/n]")
     if cont and cont.lower() in ('N', 'n'):
       break
-
