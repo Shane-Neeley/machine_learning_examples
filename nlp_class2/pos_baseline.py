@@ -123,11 +123,13 @@ def get_data(split_sequences=False):
         if line:
             r = line.split()
             word, tag, _ = r
+            # for a word index dict
             if word not in word2idx:
                 word2idx[word] = word_idx
                 word_idx += 1
             currentX.append(word2idx[word])
-            
+
+            # index the tags too (categories)
             if tag not in tag2idx:
                 tag2idx[tag] = tag_idx
                 tag_idx += 1
@@ -145,7 +147,7 @@ def get_data(split_sequences=False):
     # load and score test data
     Xtest = []
     Ytest = []
-    currentX = []
+    currentX = [] # a growing list of word indexes
     currentY = []
     for line in open('chunking/test.txt'):
         line = line.rstrip()
@@ -157,6 +159,7 @@ def get_data(split_sequences=False):
             else:
                 currentX.append(word_idx) # use this as unknown
             currentY.append(tag2idx[tag])
+        # in between sequences is an empty line, so it will go here
         elif split_sequences:
             Xtest.append(currentX)
             Ytest.append(currentY)
@@ -169,7 +172,7 @@ def get_data(split_sequences=False):
     return Xtrain, Ytrain, Xtest, Ytest, word2idx
 
 def main():
-    Xtrain, Ytrain, Xtest, Ytest, word2idx = get_data()
+    Xtrain, Ytrain, Xtest, Ytest, word2idx = get_data(split_sequences=False)
 
     # convert to numpy arrays
     Xtrain = np.array(Xtrain)

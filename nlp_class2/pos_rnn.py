@@ -15,6 +15,7 @@ import os
 import sys
 sys.path.append(os.path.abspath('..'))
 from rnn_class.gru import GRU
+from rnn_class.lstm import LSTM
 from pos_baseline import get_data
 from sklearn.utils import shuffle
 from util import init_weight
@@ -29,10 +30,10 @@ class RNN:
         self.V = V
         self.K = K
 
-    def fit(self, X, Y, learning_rate=1e-4, mu=0.99, epochs=30, show_fig=True, activation=T.nnet.relu, RecurrentUnit=GRU, normalize=False):
-        D = self.D
-        V = self.V
-        N = len(X)
+    def fit(self, X, Y, learning_rate=1e-4, mu=0.99, epochs=30, show_fig=True, activation=T.nnet.relu, RecurrentUnit=LSTM, normalize=False):
+        D = self.D # dimensions
+        V = self.V # vocabulary
+        N = len(X) # number of items
 
         We = init_weight(V, D)
         self.hidden_layers = []
@@ -68,7 +69,7 @@ class RNN:
         print("py_x.shape:", testout.shape)
 
         prediction = T.argmax(py_x, axis=1)
-        
+
         cost = -T.mean(T.log(py_x[T.arange(thY.shape[0]), thY]))
         grads = T.grad(cost, self.params)
         dparams = [theano.shared(p.get_value()*0) for p in self.params]
@@ -163,7 +164,7 @@ def main():
     print("test score:", rnn.score(Xtest, Ytest))
     print("train f1:", rnn.f1_score(Xtrain, Ytrain))
     print("test f1:", rnn.f1_score(Xtest, Ytest))
-    
+
 
 if __name__ == '__main__':
     main()

@@ -13,12 +13,12 @@ import tensorflow as tf
 import os
 import sys
 sys.path.append(os.path.abspath('..'))
-from pos_baseline import get_data
 from sklearn.utils import shuffle
 from util import init_weight
 from datetime import datetime
 from sklearn.metrics import f1_score
 
+# Tensorflow RNNs
 from tensorflow.contrib.rnn import static_rnn as get_rnn_output
 from tensorflow.contrib.rnn import BasicRNNCell, GRUCell
 
@@ -56,7 +56,7 @@ def get_data(split_sequences=False):
         word2idx[word] = word_idx
         word_idx += 1
       currentX.append(word2idx[word])
-      
+
       if tag not in tag2idx:
         tag2idx[tag] = tag_idx
         tag_idx += 1
@@ -107,18 +107,26 @@ def flatten(l):
 Xtrain, Ytrain, Xtest, Ytest, word2idx = get_data(split_sequences=True)
 V = len(word2idx) + 2 # vocab size (+1 for unknown, +1 b/c start from 1)
 K = len(set(flatten(Ytrain)) | set(flatten(Ytest))) + 1 # num classes
-
+print('V: ', V)
+print('K: ', K)
 
 # training config
-epochs = 20
+epochs = 5
 learning_rate = 1e-2
 mu = 0.99
 batch_size = 32
 hidden_layer_size = 10
-embedding_dim = 10
-sequence_length = max(len(x) for x in Xtrain + Xtest)
+embedding_dim = 10 # embedding dimension?
+sequence_length = max(len(x) for x in Xtrain + Xtest) # find the maximum length to use for padding
+print('sequence_length: ', sequence_length) # the longest sentence
 
-
+print('Xtrain')
+print(np.array(Xtrain).shape)
+print(Xtrain[0:2])
+print('Ytrain')
+print(np.array(Ytrain).shape)
+print(Ytrain[0:2])
+# arrays of arrays because they are sentences
 
 # pad sequences
 Xtrain = tf.keras.preprocessing.sequence.pad_sequences(Xtrain, maxlen=sequence_length)
@@ -128,14 +136,21 @@ Ytest  = tf.keras.preprocessing.sequence.pad_sequences(Ytest,  maxlen=sequence_l
 print("Xtrain.shape:", Xtrain.shape)
 print("Ytrain.shape:", Ytrain.shape)
 
+print('Xtrain')
+print(np.array(Xtrain).shape)
+print(Xtrain[0:2])
+print('Ytrain')
+print(np.array(Ytrain).shape)
+print(Ytrain[0:2])
+# Xtrain.shape: (8936, 78) 8936 sentences, zeros padded at the front to get all but the longest up to 78 numbers
 
-
-# inputs
+# inputs, initialize tensorflow objs
 inputs = tf.placeholder(tf.int32, shape=(None, sequence_length))
 targets = tf.placeholder(tf.int32, shape=(None, sequence_length))
 num_samples = tf.shape(inputs)[0] # useful for later
+print('num_samples: ', num_samples)
 
-# embedding
+# embedding, create weights of Vocab size (19,000) by embedding size 10
 We = np.random.randn(V, embedding_dim).astype(np.float32)
 
 # output layer
@@ -152,6 +167,7 @@ rnn_unit = GRUCell(num_units=hidden_layer_size, activation=tf.nn.relu)
 
 
 # get the output
+# https://stackoverflow.com/questions/34870614/what-does-tf-nn-embedding-lookup-function-do
 x = tf.nn.embedding_lookup(tfWe, inputs)
 
 # converts x from a tensor of shape N x T x M
@@ -248,5 +264,3 @@ for i in range(epochs):
 
 plt.plot(costs)
 plt.show()
-
-

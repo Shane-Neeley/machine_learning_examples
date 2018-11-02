@@ -34,7 +34,7 @@ def get_data(split_sequences=False):
                 word2idx[word] = word_idx
                 word_idx += 1
             currentX.append(word2idx[word])
-            
+
             if tag not in tag2idx:
                 tag2idx[tag] = tag_idx
                 tag_idx += 1
@@ -81,7 +81,7 @@ def get_data(split_sequences=False):
 #                 word2idx[word] = word_idx
 #                 word_idx += 1
 #             currentX.append(word2idx[word])
-            
+
 #             if tag not in tag2idx:
 #                 tag2idx[tag] = tag_idx
 #                 tag_idx += 1
@@ -114,7 +114,7 @@ def main():
 
     # train and score
     model = LogisticRegression()
-    model.fit(Xtrain, Ytrain, V=V, K=K, epochs=5)
+    model.fit(Xtrain, Ytrain, V=V, K=K, epochs=500)
     print("training complete")
     print("train score:", model.score(Xtrain, Ytrain))
     print("train f1 score:", model.f1_score(Xtrain, Ytrain))
