@@ -55,6 +55,10 @@ train = pd.read_csv("../large_files/toxic-comment/train.csv")
 sentences = train["comment_text"].fillna("DUMMY_VALUE").values
 possible_labels = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
 targets = train[possible_labels].values
+print('sentences: ', sentences)
+print('targets: ', targets)
+print('sentences shape: ', sentences.shape)
+print('targets shape: ', targets.shape)
 
 
 
@@ -62,7 +66,7 @@ targets = train[possible_labels].values
 tokenizer = Tokenizer(num_words=MAX_VOCAB_SIZE)
 tokenizer.fit_on_texts(sentences)
 sequences = tokenizer.texts_to_sequences(sentences)
-# print("sequences:", sequences); exit()
+#print("sequences:", sequences); exit()
 
 
 print("max sequence length:", max(len(s) for s in sequences))
@@ -77,6 +81,7 @@ print('Found %s unique tokens.' % len(word2idx))
 
 
 # pad sequences so that we get a N x T matrix
+# Median length is 35, so most of them will be 35 + 65 zeros = 100. And max = 1400, it will be cut off to a length of 100.
 data = pad_sequences(sequences, maxlen=MAX_SEQUENCE_LENGTH)
 print('Shape of data tensor:', data.shape)
 
@@ -97,6 +102,8 @@ for word, i in word2idx.items():
 
 # load pre-trained word embeddings into an Embedding layer
 # note that we set trainable = False so as to keep the embeddings fixed
+# Transfer-learning: It can be used to load a pre-trained word embedding model, a type of transfer learning.
+
 embedding_layer = Embedding(
   num_words,
   EMBEDDING_DIM,
@@ -126,6 +133,9 @@ model.compile(
   optimizer='rmsprop',
   metrics=['accuracy']
 )
+
+# summarize the model
+print(model.summary())
 
 print('Training model...')
 r = model.fit(
