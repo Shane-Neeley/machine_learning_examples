@@ -9,6 +9,7 @@ from builtins import range
 
 
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 
@@ -31,6 +32,15 @@ print(true_w)
 Y = np.round(sigmoid(X.dot(true_w) + np.random.randn(N) * 0.5))
 print('Y')
 print(Y)
+
+
+
+
+# let's plot the data to see what it looks like
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(X[:,0], X[:,1], X[:,2], c=Y)
+plt.show()
 
 # perform gradient descent to find w
 costs = []  # keep track of squared error cost
