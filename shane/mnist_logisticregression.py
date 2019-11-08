@@ -10,7 +10,7 @@ from sklearn.utils import shuffle
 import sys
 import pandas as pd
 
-data = pd.read_csv('../mnist_csv/kaggletrain.csv', sep=",").values
+data = pd.read_csv('../large_files/train.csv', sep=",").values
 limit = 1000
 Xtrain = data[1:-limit,1:]
 Ytrain = data[1:-limit,:1].flatten()

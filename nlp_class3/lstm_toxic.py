@@ -6,6 +6,7 @@ from builtins import range
 
 
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import sys
 import numpy as np
 import pandas as pd
@@ -108,8 +109,6 @@ embedding_layer = Embedding(
   trainable=False
 )
 
-
-
 print('Building model...')
 
 # create an LSTM network with a single LSTM
@@ -126,7 +125,6 @@ model.compile(
   optimizer=Adam(lr=0.01),
   metrics=['accuracy']
 )
-
 
 print('Training model...')
 r = model.fit(
@@ -155,4 +153,3 @@ for j in range(6):
     auc = roc_auc_score(targets[:,j], p[:,j])
     aucs.append(auc)
 print(np.mean(aucs))
-

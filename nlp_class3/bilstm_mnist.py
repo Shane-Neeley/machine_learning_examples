@@ -4,8 +4,8 @@ from builtins import range, input
 # Note: you may need to update your version of future
 # sudo pip install -U future
 
-
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 from keras.models import Model
 from keras.layers import Input, LSTM, GRU, Bidirectional, GlobalMaxPooling1D, Lambda, Concatenate, Dense
 import keras.backend as K
@@ -36,16 +36,12 @@ def get_mnist(limit=None):
     X, Y = X[:limit], Y[:limit]
   return X, Y
 
-
-
-
 # get data
 X, Y = get_mnist()
 
 # config
-D = 28
-M = 15
-
+D = 28 # 28x28 images in mnist
+M = 15 # arbitrarily chosen hidden units
 
 # input is an image of size 28x28
 input_ = Input(shape=(D, D))
@@ -58,7 +54,8 @@ x1 = GlobalMaxPooling1D()(x1) # output is N x 2M
 # left-right
 rnn2 = Bidirectional(LSTM(M, return_sequences=True))
 
-# custom layer
+# custom layer (this actually isn't needed, but just turns the image sideways, you can run output w/ just x1)
+# turning the image sideways (permuting), is a way for an RNN to scan an image up-down and left-right as sequences.
 permutor = Lambda(lambda t: K.permute_dimensions(t, pattern=(0, 2, 1)))
 
 x2 = permutor(input_)
@@ -69,14 +66,14 @@ x2 = GlobalMaxPooling1D()(x2) # output is N x 2M
 concatenator = Concatenate(axis=1)
 x = concatenator([x1, x2]) # output is N x 4M
 
-# final dense layer
+# final dense layer, size = number of labels range(0,9)
 output = Dense(10, activation='softmax')(x)
 
 model = Model(inputs=input_, outputs=output)
 
 # testing
-# o = model.predict(X)
-# print("o.shape:", o.shape)
+o = model.predict(X)
+print("o.shape:", o.shape)
 
 # compile
 model.compile(
@@ -87,8 +84,7 @@ model.compile(
 
 # train
 print('Training model...')
-r = model.fit(X, Y, batch_size=32, epochs=10, validation_split=0.3)
-
+r = model.fit(X, Y, batch_size=32, epochs=1, validation_split=0.3)
 
 # plot some data
 plt.plot(r.history['loss'], label='loss')
@@ -101,4 +97,3 @@ plt.plot(r.history['acc'], label='acc')
 plt.plot(r.history['val_acc'], label='val_acc')
 plt.legend()
 plt.show()
-
