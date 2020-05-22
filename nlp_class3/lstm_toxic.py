@@ -21,9 +21,9 @@ from keras.optimizers import Adam
 from sklearn.metrics import roc_auc_score
 
 import keras.backend as K
-if len(K.tensorflow_backend._get_available_gpus()) > 0:
-  from keras.layers import CuDNNLSTM as LSTM
-  from keras.layers import CuDNNGRU as GRU
+# if len(K.tensorflow_backend._get_available_gpus()) > 0:
+#   from keras.layers import CuDNNLSTM as LSTM
+#   from keras.layers import CuDNNGRU as GRU
 
 
 # Download the data:
@@ -123,7 +123,7 @@ model = Model(input_, output)
 model.compile(
   loss='binary_crossentropy',
   optimizer=Adam(lr=0.01),
-  metrics=['accuracy']
+  metrics=['accuracy'],
 )
 
 print('Training model...')
@@ -142,8 +142,8 @@ plt.legend()
 plt.show()
 
 # accuracies
-plt.plot(r.history['acc'], label='acc')
-plt.plot(r.history['val_acc'], label='val_acc')
+plt.plot(r.history['accuracy'], label='acc')
+plt.plot(r.history['val_accuracy'], label='val_acc')
 plt.legend()
 plt.show()
 

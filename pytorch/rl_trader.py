@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, Input
-from tensorflow.keras.optimizers import Adam
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 from datetime import datetime
 import itertools
@@ -84,27 +84,57 @@ def maybe_make_dir(directory):
 
 
 
-def mlp(input_dim, n_action, n_hidden_layers=1, hidden_dim=32):
-  """ A multi-layer perceptron """
+class MLP(nn.Module):
+  def __init__(self, n_inputs, n_action, n_hidden_layers=1, hidden_dim=32):
+    super(MLP, self).__init__()
 
-  # input layer
-  i = Input(shape=(input_dim,))
-  x = i
+    M = n_inputs
+    self.layers = []
+    for _ in range(n_hidden_layers):
+      layer = nn.Linear(M, hidden_dim)
+      M = hidden_dim
+      self.layers.append(layer)
+      self.layers.append(nn.ReLU())
 
-  # hidden layers
-  for _ in range(n_hidden_layers):
-    x = Dense(hidden_dim, activation='relu')(x)
-  
-  # final layer
-  x = Dense(n_action)(x)
+    # final layer
+    self.layers.append(nn.Linear(M, n_action))
+    self.layers = nn.Sequential(*self.layers)
 
-  # make the model
-  model = Model(i, x)
+  def forward(self, X):
+    return self.layers(X)
 
-  model.compile(loss='mse', optimizer='adam')
-  print((model.summary()))
-  return model
+  def save_weights(self, path):
+    torch.save(self.state_dict(), path)
 
+  def load_weights(self, path):
+    self.load_state_dict(torch.load(path))
+
+
+
+def predict(model, np_states):
+  with torch.no_grad():
+    inputs = torch.from_numpy(np_states.astype(np.float32))
+    output = model(inputs)
+    # print("output:", output)
+    return output.numpy()
+
+
+
+def train_one_step(model, criterion, optimizer, inputs, targets):
+  # convert to tensors
+  inputs = torch.from_numpy(inputs.astype(np.float32))
+  targets = torch.from_numpy(targets.astype(np.float32))
+
+  # zero the parameter gradients
+  optimizer.zero_grad()
+
+  # Forward pass
+  outputs = model(inputs)
+  loss = criterion(outputs, targets)
+        
+  # Backward and optimize
+  loss.backward()
+  optimizer.step()
 
 
 
@@ -260,7 +290,11 @@ class DQNAgent(object):
     self.epsilon = 1.0  # exploration rate
     self.epsilon_min = 0.01
     self.epsilon_decay = 0.995
-    self.model = mlp(state_size, action_size)
+    self.model = MLP(state_size, action_size)
+
+    # Loss and optimizer
+    self.criterion = nn.MSELoss()
+    self.optimizer = torch.optim.Adam(self.model.parameters())
 
 
   def update_replay_memory(self, state, action, reward, next_state, done):
@@ -270,7 +304,7 @@ class DQNAgent(object):
   def act(self, state):
     if np.random.rand() <= self.epsilon:
       return np.random.choice(self.action_size)
-    act_values = self.model.predict(state)
+    act_values = predict(self.model, state)
     return np.argmax(act_values[0])  # returns action
 
 
@@ -287,22 +321,22 @@ class DQNAgent(object):
     next_states = minibatch['s2']
     done = minibatch['d']
 
-    # Calculate the tentative target: Q(s',a)
+    # Calculate the target: Q(s',a)
     target = rewards + (1 - done) * self.gamma * np.amax(self.model.predict(next_states), axis=1)
 
-    # With the Keras API, the target (usually) must have the same
-    # shape as the predictions.
+    # With the PyTorch API, it is simplest to have the target be the 
+    # same shape as the predictions.
     # However, we only need to update the network for the actions
     # which were actually taken.
     # We can accomplish this by setting the target to be equal to
     # the prediction for all values.
     # Then, only change the targets for the actions taken.
     # Q(s,a)
-    target_full = self.model.predict(states)
+    target_full = predict(self.model, states)
     target_full[np.arange(batch_size), actions] = target
 
     # Run one training step
-    self.model.train_on_batch(states, target_full)
+    train_one_step(self.model, self.criterion, self.optimizer, states, target_full)
 
     if self.epsilon > self.epsilon_min:
       self.epsilon *= self.epsilon_decay
@@ -383,7 +417,7 @@ if __name__ == '__main__':
     agent.epsilon = 0.01
 
     # load trained weights
-    agent.load(f'{models_folder}/dqn.h5')
+    agent.load(f'{models_folder}/dqn.ckpt')
 
   # play the game num_episodes times
   for e in range(num_episodes):
@@ -396,7 +430,7 @@ if __name__ == '__main__':
   # save the weights when we are done
   if args.mode == 'train':
     # save the DQN
-    agent.save(f'{models_folder}/dqn.h5')
+    agent.save(f'{models_folder}/dqn.ckpt')
 
     # save the scaler
     with open(f'{models_folder}/scaler.pkl', 'wb') as f:

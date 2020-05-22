@@ -7,9 +7,31 @@ Find associated tutorials at https://lazyprogrammer.me
 
 Find associated courses at https://deeplearningcourses.com
 
+Please note that not all code from all courses will be found in this repository. Some newer code examples (e.g. everything from Tensorflow 2.0) were done in Google Colab. Therefore, you should check the instructions given in the lectures for the course you are taking.
+
+
+Why you should not fork this repo
+=================================
+
+I've noticed that many people have out-of-date forks. Thus, I recommend not forking this repository if you take one of my courses. I am constantly updating my courses, and your fork will soon become out-of-date. You should clone the repository instead to make it easy to get updates (i.e. just "git pull" randomly and frequently).
+
 
 Direct Course Links
 ===================
+
+PyTorch: Deep Learning and Artificial Intelligence (special discount link for full VIP course as of Apr 2020)
+https://www.udemy.com/course/pytorch-deep-learning/?couponCode=PYTORCHVIP
+
+
+Tensorflow 2.0: Deep Learning and Artificial Intelligence
+(Main Course - special discount link)
+https://www.udemy.com/course/deep-learning-tensorflow-2/?referralCode=E10B72D3848AB70FE1B8
+
+Tensorflow 2.0: Deep Learning and Artificial Intelligence (VIP Content)
+https://deeplearningcourses.com/c/deep-learning-tensorflow-2
+
+Cutting-Edge AI: Deep Reinforcement Learning in Python
+https://deeplearningcourses.com/c/cutting-edge-artificial-intelligence
 
 Recommender Systems and Deep Learning in Python
 https://deeplearningcourses.com/c/recommender-systems
