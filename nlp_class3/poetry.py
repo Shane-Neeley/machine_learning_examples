@@ -5,6 +5,7 @@ from builtins import range, input
 # sudo pip install -U future
 
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import sys
 import string
 import numpy as np
@@ -29,8 +30,8 @@ MAX_VOCAB_SIZE = 3000
 EMBEDDING_DIM = 50
 VALIDATION_SPLIT = 0.2
 BATCH_SIZE = 128
-EPOCHS = 2000
-LATENT_DIM = 25
+EPOCHS = 200
+LATENT_DIM = 25 # number of hidden units ("nodes") of LSTM layer
 
 # load in the data
 input_texts = []
@@ -45,6 +46,7 @@ for line in open('../hmm_class/robert_frost.txt'):
 
   input_texts.append(input_line)
   target_texts.append(target_line)
+  # TODO: test what happens when I cut the targets in half? .. sizes may break. This may be more like a summarization.
 
 
 all_lines = input_texts + target_texts
@@ -71,8 +73,8 @@ assert('<eos>' in word2idx)
 max_sequence_length = min(max_sequence_length_from_data, MAX_SEQUENCE_LENGTH)
 input_sequences = pad_sequences(input_sequences, maxlen=max_sequence_length, padding='post')
 target_sequences = pad_sequences(target_sequences, maxlen=max_sequence_length, padding='post')
-print('Shape of data tensor:', input_sequences.shape)
-
+print('Shape of data tensor (inputs):', input_sequences.shape)
+print('Shape of data tensor (targets):', target_sequences.shape)
 
 
 # load in pre-trained word vectors
@@ -87,7 +89,6 @@ with open(os.path.join('../large_files/glove.6B/glove.6B.%sd.txt' % EMBEDDING_DI
     vec = np.asarray(values[1:], dtype='float32')
     word2vec[word] = vec
 print('Found %s word vectors.' % len(word2vec))
-
 
 
 # prepare embedding matrix
@@ -110,6 +111,7 @@ for i, target_sequence in enumerate(target_sequences):
     if word > 0:
       one_hot_targets[i, t, word] = 1
 
+print('one_hot_targets.shape', one_hot_targets.shape)
 
 
 # load pre-trained word embeddings into an Embedding layer
@@ -119,8 +121,6 @@ embedding_layer = Embedding(
   weights=[embedding_matrix],
   # trainable=False
 )
-
-
 
 print('Building model...')
 
@@ -145,6 +145,7 @@ model.compile(
 
 print('Training model...')
 z = np.zeros((len(input_sequences), LATENT_DIM))
+print('size z:', z.shape)
 r = model.fit(
   [input_sequences, z, z],
   one_hot_targets,
@@ -166,17 +167,16 @@ plt.legend()
 plt.show()
 
 
-
-# make a sampling model
-input2 = Input(shape=(1,)) # we'll only input one word at a time
+# make a sampling model for inference
+# use the initial_state for the pre-trained weights
+input2 = Input(shape=(1,)) # input one word at a time
 x = embedding_layer(input2)
 x, h, c = lstm(x, initial_state=[initial_h, initial_c]) # now we need states to feed back in
 output2 = dense(x)
 sampling_model = Model([input2, initial_h, initial_c], [output2, h, c])
 
 
-# reverse word2idx dictionary to get back words
-# during prediction
+# reverse word2idx dictionary to get back words during prediction
 idx2word = {v:k for k, v in word2idx.items()}
 
 
@@ -194,9 +194,12 @@ def sample_line():
 
   for _ in range(max_sequence_length):
     o, h, c = sampling_model.predict([np_input, h, c])
+    print("o.shape:", o.shape)
+    print("h.shape:", o.shape)
+    print("c.shape:", o.shape)
 
-    # print("o.shape:", o.shape, o[0,0,:10])
     # idx = np.argmax(o[0,0])
+    # this block is not necessary .. it was to do with prob of 0th index being high?
     probs = o[0,0]
     if np.argmax(probs) == 0:
       print("wtf")
@@ -204,9 +207,9 @@ def sample_line():
     probs /= probs.sum()
     idx = np.random.choice(len(probs), p=probs)
     if idx == eos:
-      break
+      break # when we see an eos we quit this line
 
-    # accuulate output
+    # accumulate output
     output_sentence.append(idx2word.get(idx, '<WTF %s>' % idx))
 
     # make the next input into model
@@ -219,6 +222,6 @@ while True:
   for _ in range(4):
     print(sample_line())
 
-  ans = input("---generate another? [Y/n]---")
+  ans = input("---Generate Another Poem? [Y/n]---")
   if ans and ans[0].lower().startswith('n'):
     break

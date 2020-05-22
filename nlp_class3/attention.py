@@ -5,6 +5,7 @@ from builtins import range, input
 # sudo pip install -U future
 
 import os, sys
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 from keras.models import Model
 from keras.layers import Input, LSTM, GRU, Dense, Embedding, \
@@ -233,7 +234,7 @@ attn_dot = Dot(axes=1) # to perform the weighted sum of alpha[t] * h[t]
 def one_step_attention(h, st_1):
   # h = h(1), ..., h(Tx), shape = (Tx, LATENT_DIM * 2)
   # st_1 = s(t-1), shape = (LATENT_DIM_DECODER,)
- 
+
   # copy s(t-1) Tx times
   # now shape = (Tx, LATENT_DIM_DECODER)
   st_1 = attn_repeat_layer(st_1)
@@ -283,8 +284,8 @@ for t in range(max_len_target): # Ty times
   # we need a different layer for each time step
   selector = Lambda(lambda x: x[:, t:t+1])
   xt = selector(decoder_inputs_x)
-  
-  # combine 
+
+  # combine
   decoder_lstm_input = context_last_word_concat_layer([context, xt])
 
   # pass the combined [context, last word] into the LSTM
@@ -318,7 +319,7 @@ model = Model(
   inputs=[
     encoder_inputs_placeholder,
     decoder_inputs_placeholder,
-    initial_s, 
+    initial_s,
     initial_c,
   ],
   outputs=outputs
@@ -388,7 +389,7 @@ decoder_model = Model(
   inputs=[
     decoder_inputs_single,
     encoder_outputs_as_input,
-    initial_s, 
+    initial_s,
     initial_c
   ],
   outputs=[decoder_outputs, s, c]
@@ -411,7 +412,7 @@ def decode_sequence(input_seq):
 
   # Generate empty target sequence of length 1.
   target_seq = np.zeros((1, 1))
-  
+
   # Populate the first character of target sequence with the start character.
   # NOTE: tokenizer lower-cases all words
   target_seq[0, 0] = word2idx_outputs['<sos>']
@@ -429,7 +430,7 @@ def decode_sequence(input_seq):
   output_sentence = []
   for _ in range(max_len_target):
     o, s, c = decoder_model.predict([target_seq, enc_out, s, c])
-        
+
 
     # Get next word
     idx = np.argmax(o.flatten())
@@ -465,4 +466,3 @@ while True:
   ans = input("Continue? [Y/n]")
   if ans and ans.lower().startswith('n'):
     break
-

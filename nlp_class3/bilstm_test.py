@@ -17,7 +17,7 @@ if len(K.tensorflow_backend._get_available_gpus()) > 0:
 
 T = 8 # e.g. number of words (sequence length)
 D = 2 # e.g. dimension of word vectors (input dimensionality)
-M = 3 # e.g. number of hidden units? (latent dimensionality) “units” is also called latent dimension
+M = 3 # e.g. number of hidden units. (latent dimensionality) “units” is also called latent dimension
 
 X = np.random.randn(1, T, D)
 print("X:", X)

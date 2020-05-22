@@ -6,6 +6,7 @@ from builtins import range, input
 # sudo pip install -U future
 
 import os, sys
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 from keras.models import Model
 from keras.layers import Input, LSTM, GRU, Dense, Embedding
@@ -50,7 +51,7 @@ for line in open('../large_files/translation/spa.txt'):
     continue
 
   # split up the input and translation
-  input_text, translation = line.rstrip().split('\t')
+  input_text, translation, junk = line.rstrip().split('\t')
 
   # make the target input and output
   # recall we'll be using teacher forcing
@@ -285,7 +286,7 @@ decoder_outputs = decoder_dense(decoder_outputs)
 # inputs: y(t-1), h(t-1), c(t-1)
 # outputs: y(t), h(t), c(t)
 decoder_model = Model(
-  [decoder_inputs_single] + decoder_states_inputs, 
+  [decoder_inputs_single] + decoder_states_inputs,
   [decoder_outputs] + decoder_states
 )
 
@@ -356,3 +357,6 @@ while True:
   if ans and ans.lower().startswith('n'):
     break
 
+while True:
+  # Do some personal test translations ..
+  # TODO: have to encode them first
